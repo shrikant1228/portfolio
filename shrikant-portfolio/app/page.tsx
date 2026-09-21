@@ -228,6 +228,30 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
+    const drawer = document.getElementById('mobile-drawer')
+    const openButton = document.getElementById('nav-toggle')
+    const closeButton = document.getElementById('close-drawer')
+    if (!drawer || !openButton || !closeButton) return
+
+    const openDrawer = () => drawer.classList.add('open')
+    const closeDrawer = () => drawer.classList.remove('open')
+
+    openButton.addEventListener('click', openDrawer)
+    closeButton.addEventListener('click', closeDrawer)
+    drawer.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', closeDrawer)
+    })
+
+    return () => {
+      openButton.removeEventListener('click', openDrawer)
+      closeButton.removeEventListener('click', closeDrawer)
+      drawer.querySelectorAll('a').forEach((link) => {
+        link.removeEventListener('click', closeDrawer)
+      })
+    }
+  }, [])
+
+  useEffect(() => {
     const dot = document.getElementById('cursor-dot')
     const ring = document.getElementById('cursor-ring')
     const handleMouseMove = (event: MouseEvent) => {
