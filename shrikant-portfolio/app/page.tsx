@@ -228,14 +228,62 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
+    const dot = document.getElementById('cursor-dot')
+    const ring = document.getElementById('cursor-ring')
     const handleMouseMove = (event: MouseEvent) => {
       const hero = document.getElementById('hero')
-      if (!hero) return
-      hero.style.setProperty('--mx', `${event.clientX}px`)
-      hero.style.setProperty('--my', `${event.clientY}px`)
+      if (dot) {
+        dot.style.transform = `translate(${event.clientX}px, ${event.clientY}px) translate(-50%, -50%)`
+      }
+      if (hero) {
+        hero.style.setProperty('--mx', `${event.clientX}px`)
+        hero.style.setProperty('--my', `${event.clientY}px`)
+      }
     }
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
+
+    let mouseX = 0
+    let mouseY = 0
+    let ringX = 0
+    let ringY = 0
+    let animationFrame = 0
+
+    const trackMouse = (event: MouseEvent) => {
+      mouseX = event.clientX
+      mouseY = event.clientY
+      handleMouseMove(event)
+    }
+
+    const animateRing = () => {
+      ringX += (mouseX - ringX) * 0.18
+      ringY += (mouseY - ringY) * 0.18
+      if (ring) {
+        ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`
+      }
+      animationFrame = requestAnimationFrame(animateRing)
+    }
+
+    const interactiveElements = document.querySelectorAll(
+      'a, button, .chip, .skill-card, .proj-card, .contact-link, input',
+    )
+    const handleEnter = () => ring?.classList.add('hovering')
+    const handleLeave = () => ring?.classList.remove('hovering')
+
+    interactiveElements.forEach((element) => {
+      element.addEventListener('mouseenter', handleEnter)
+      element.addEventListener('mouseleave', handleLeave)
+    })
+
+    window.addEventListener('mousemove', trackMouse)
+    animationFrame = requestAnimationFrame(animateRing)
+
+    return () => {
+      window.removeEventListener('mousemove', trackMouse)
+      cancelAnimationFrame(animationFrame)
+      interactiveElements.forEach((element) => {
+        element.removeEventListener('mouseenter', handleEnter)
+        element.removeEventListener('mouseleave', handleLeave)
+      })
+    }
   }, [])
 
   useEffect(() => {
